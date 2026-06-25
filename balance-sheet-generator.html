@@ -1,0 +1,952 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Balance Sheet Generator | IncomeAIHub</title>
+<meta name="description" content="Free online Balance Sheet Generator - Create professional balance sheets for your business instantly. Auto-calculation, INR formatting, PDF download.">
+
+<!-- Google Fonts -->
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@500;700;900&family=Rajdhani:wght@400;500;600;700&family=Share+Tech+Mono&display=swap" rel="stylesheet">
+
+<!-- jsPDF + html2canvas for PDF Export -->
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
+
+<!-- Google AdSense (Replace with your client ID) -->
+<script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-XXXXXXXXXXXXXXXX" crossorigin="anonymous"></script>
+
+<style>
+:root{
+  --bg-primary:#080a12;
+  --bg-secondary:#0e1220;
+  --bg-card:#10141f;
+  --bg-input:#0a0d16;
+  --cyan:#00f6ff;
+  --cyan-dim:#00b8c4;
+  --purple:#b347ff;
+  --purple-dim:#8a2be2;
+  --green:#39ff8c;
+  --red:#ff4d6d;
+  --yellow:#ffd23f;
+  --text-primary:#e8f0ff;
+  --text-secondary:#8b9bc4;
+  --text-dim:#52608a;
+  --border-glow:rgba(0,246,255,0.25);
+  --border-soft:rgba(139,71,255,0.18);
+  --radius:14px;
+}
+
+*{box-sizing:border-box;margin:0;padding:0;}
+
+body{
+  background:var(--bg-primary);
+  background-image:
+    radial-gradient(circle at 15% 10%, rgba(179,71,255,0.10), transparent 40%),
+    radial-gradient(circle at 85% 90%, rgba(0,246,255,0.08), transparent 40%),
+    linear-gradient(rgba(0,246,255,0.025) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(0,246,255,0.025) 1px, transparent 1px);
+  background-size:auto, auto, 38px 38px, 38px 38px;
+  color:var(--text-primary);
+  font-family:'Rajdhani',sans-serif;
+  min-height:100vh;
+  padding:18px;
+  line-height:1.5;
+}
+
+.wrap{max-width:1180px;margin:0 auto;}
+
+/* Header */
+header{
+  text-align:center;
+  padding:26px 16px 22px;
+  margin-bottom:22px;
+  position:relative;
+}
+header::after{
+  content:'';
+  position:absolute;
+  bottom:0;left:50%;
+  transform:translateX(-50%);
+  width:70%;
+  max-width:480px;
+  height:1px;
+  background:linear-gradient(90deg, transparent, var(--cyan), var(--purple), transparent);
+}
+.logo-tag{
+  display:inline-block;
+  font-family:'Share Tech Mono',monospace;
+  font-size:0.72rem;
+  letter-spacing:3px;
+  color:var(--purple);
+  border:1px solid var(--border-soft);
+  padding:4px 14px;
+  border-radius:30px;
+  margin-bottom:14px;
+  text-transform:uppercase;
+  background:rgba(179,71,255,0.06);
+}
+h1{
+  font-family:'Orbitron',sans-serif;
+  font-weight:900;
+  font-size:clamp(1.6rem,5vw,2.7rem);
+  letter-spacing:1px;
+  background:linear-gradient(90deg, var(--cyan), var(--purple) 60%, var(--green));
+  -webkit-background-clip:text;
+  background-clip:text;
+  color:transparent;
+  text-shadow:0 0 30px rgba(0,246,255,0.25);
+  margin-bottom:8px;
+}
+header p{
+  color:var(--text-secondary);
+  font-size:0.98rem;
+  max-width:560px;
+  margin:0 auto;
+}
+
+/* Ad slots */
+.ad-slot{
+  background:var(--bg-secondary);
+  border:1px dashed var(--border-soft);
+  border-radius:var(--radius);
+  text-align:center;
+  padding:14px;
+  margin:20px 0;
+  color:var(--text-dim);
+  font-family:'Share Tech Mono',monospace;
+  font-size:0.75rem;
+  letter-spacing:1px;
+  text-transform:uppercase;
+  min-height:54px;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+}
+
+/* Card */
+.card{
+  background:var(--bg-card);
+  border:1px solid var(--border-glow);
+  border-radius:var(--radius);
+  padding:22px;
+  margin-bottom:22px;
+  position:relative;
+  box-shadow:0 0 40px rgba(0,246,255,0.04), inset 0 0 60px rgba(179,71,255,0.02);
+}
+.card::before{
+  content:'';
+  position:absolute;
+  top:0;left:18px;right:18px;
+  height:1px;
+  background:linear-gradient(90deg, transparent, var(--cyan), transparent);
+  opacity:0.6;
+}
+
+.section-title{
+  font-family:'Orbitron',sans-serif;
+  font-size:1rem;
+  letter-spacing:1.5px;
+  color:var(--cyan);
+  text-transform:uppercase;
+  margin-bottom:16px;
+  display:flex;
+  align-items:center;
+  gap:10px;
+}
+.section-title .dot{
+  width:8px;height:8px;border-radius:50%;
+  background:var(--cyan);
+  box-shadow:0 0 10px var(--cyan);
+}
+.section-title.purple{color:var(--purple);}
+.section-title.purple .dot{background:var(--purple);box-shadow:0 0 10px var(--purple);}
+.section-title.green{color:var(--green);}
+.section-title.green .dot{background:var(--green);box-shadow:0 0 10px var(--green);}
+
+/* Form grid for header info */
+.meta-grid{
+  display:grid;
+  grid-template-columns:1fr 1fr;
+  gap:16px;
+  margin-bottom:6px;
+}
+@media (max-width:560px){.meta-grid{grid-template-columns:1fr;}}
+
+.field label{
+  display:block;
+  font-size:0.78rem;
+  letter-spacing:1px;
+  text-transform:uppercase;
+  color:var(--text-secondary);
+  margin-bottom:6px;
+  font-family:'Share Tech Mono',monospace;
+}
+.field input, .field select{
+  width:100%;
+  background:var(--bg-input);
+  border:1px solid var(--border-soft);
+  border-radius:8px;
+  padding:11px 13px;
+  color:var(--text-primary);
+  font-family:'Rajdhani',sans-serif;
+  font-size:0.98rem;
+  font-weight:500;
+  transition:border-color .2s, box-shadow .2s;
+}
+.field input:focus, .field select:focus{
+  outline:none;
+  border-color:var(--cyan);
+  box-shadow:0 0 0 3px rgba(0,246,255,0.1);
+}
+.field input::placeholder{color:var(--text-dim);}
+
+/* Two column layout for assets/liabilities */
+.two-col{
+  display:grid;
+  grid-template-columns:1fr 1fr;
+  gap:20px;
+}
+@media (max-width:880px){.two-col{grid-template-columns:1fr;}}
+
+.subsection{margin-bottom:20px;}
+.subsection-label{
+  font-family:'Share Tech Mono',monospace;
+  font-size:0.78rem;
+  letter-spacing:1px;
+  color:var(--text-secondary);
+  text-transform:uppercase;
+  margin-bottom:10px;
+  padding-bottom:6px;
+  border-bottom:1px solid var(--border-soft);
+}
+
+.row-item{
+  display:flex;
+  gap:8px;
+  margin-bottom:8px;
+  align-items:center;
+}
+.row-item input[type="text"]{
+  flex:1.3;
+  background:var(--bg-input);
+  border:1px solid var(--border-soft);
+  border-radius:7px;
+  padding:9px 11px;
+  color:var(--text-primary);
+  font-size:0.92rem;
+  font-family:'Rajdhani',sans-serif;
+}
+.row-item input[type="number"]{
+  flex:1;
+  background:var(--bg-input);
+  border:1px solid var(--border-soft);
+  border-radius:7px;
+  padding:9px 11px;
+  color:var(--text-primary);
+  font-size:0.92rem;
+  font-family:'Share Tech Mono',monospace;
+  text-align:right;
+}
+.row-item input:focus{
+  outline:none;
+  border-color:var(--cyan);
+}
+.row-item .remove-btn{
+  width:30px;height:30px;
+  flex-shrink:0;
+  background:rgba(255,77,109,0.08);
+  border:1px solid rgba(255,77,109,0.35);
+  color:var(--red);
+  border-radius:7px;
+  cursor:pointer;
+  font-size:1rem;
+  line-height:1;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  transition:background .2s, transform .15s;
+}
+.row-item .remove-btn:hover{background:rgba(255,77,109,0.2);transform:scale(1.05);}
+
+.add-btn{
+  background:transparent;
+  border:1px dashed var(--cyan-dim);
+  color:var(--cyan);
+  padding:8px 16px;
+  border-radius:7px;
+  font-family:'Share Tech Mono',monospace;
+  font-size:0.8rem;
+  letter-spacing:0.5px;
+  cursor:pointer;
+  margin-top:4px;
+  transition:background .2s, border-color .2s;
+  width:100%;
+}
+.add-btn:hover{background:rgba(0,246,255,0.07);border-color:var(--cyan);}
+.add-btn.purple{border-color:var(--purple-dim);color:var(--purple);}
+.add-btn.purple:hover{background:rgba(179,71,255,0.07);border-color:var(--purple);}
+
+.subtotal-row{
+  display:flex;
+  justify-content:space-between;
+  padding:10px 4px 4px;
+  font-family:'Share Tech Mono',monospace;
+  font-size:0.86rem;
+  color:var(--text-secondary);
+  border-top:1px solid var(--border-soft);
+  margin-top:8px;
+}
+.subtotal-row span:last-child{color:var(--text-primary);font-weight:600;}
+
+/* Action buttons */
+.action-bar{
+  display:flex;
+  flex-wrap:wrap;
+  gap:12px;
+  justify-content:center;
+  margin:24px 0;
+}
+.btn{
+  font-family:'Orbitron',sans-serif;
+  font-size:0.85rem;
+  letter-spacing:1px;
+  text-transform:uppercase;
+  padding:13px 26px;
+  border-radius:9px;
+  cursor:pointer;
+  border:none;
+  transition:transform .15s, box-shadow .2s;
+  display:inline-flex;
+  align-items:center;
+  gap:8px;
+}
+.btn:active{transform:scale(0.97);}
+.btn-primary{
+  background:linear-gradient(135deg, var(--cyan), var(--cyan-dim));
+  color:#001016;
+  box-shadow:0 0 22px rgba(0,246,255,0.35);
+}
+.btn-primary:hover{box-shadow:0 0 32px rgba(0,246,255,0.55);}
+.btn-secondary{
+  background:linear-gradient(135deg, var(--purple), var(--purple-dim));
+  color:#0c0316;
+  box-shadow:0 0 22px rgba(179,71,255,0.3);
+}
+.btn-secondary:hover{box-shadow:0 0 32px rgba(179,71,255,0.5);}
+.btn-ghost{
+  background:transparent;
+  border:1px solid var(--border-soft);
+  color:var(--text-secondary);
+}
+.btn-ghost:hover{border-color:var(--text-secondary);color:var(--text-primary);}
+
+/* Summary / Balance Check */
+.balance-check{
+  text-align:center;
+  padding:20px;
+  border-radius:var(--radius);
+  margin-bottom:22px;
+  font-family:'Orbitron',sans-serif;
+  border:1px solid var(--border-glow);
+  background:var(--bg-card);
+}
+.balance-check .status-text{
+  font-size:1.15rem;
+  letter-spacing:1px;
+  margin-bottom:6px;
+}
+.balance-check .diff-text{
+  font-family:'Share Tech Mono',monospace;
+  font-size:0.85rem;
+  color:var(--text-secondary);
+}
+.balanced{color:var(--green);text-shadow:0 0 15px rgba(57,255,140,0.4);}
+.unbalanced{color:var(--red);text-shadow:0 0 15px rgba(255,77,109,0.4);}
+
+/* Totals summary grid */
+.totals-grid{
+  display:grid;
+  grid-template-columns:repeat(3,1fr);
+  gap:14px;
+  margin-bottom:6px;
+}
+@media (max-width:700px){.totals-grid{grid-template-columns:1fr;}}
+.total-box{
+  background:var(--bg-input);
+  border:1px solid var(--border-soft);
+  border-radius:10px;
+  padding:16px;
+  text-align:center;
+}
+.total-box .label{
+  font-family:'Share Tech Mono',monospace;
+  font-size:0.72rem;
+  letter-spacing:1px;
+  color:var(--text-secondary);
+  text-transform:uppercase;
+  margin-bottom:6px;
+}
+.total-box .value{
+  font-family:'Orbitron',sans-serif;
+  font-size:1.3rem;
+  font-weight:700;
+  color:var(--cyan);
+}
+.total-box.liab .value{color:var(--purple);}
+.total-box.eq .value{color:var(--green);}
+
+/* PDF Preview Area */
+#pdfArea{
+  background:#ffffff;
+  color:#1a1a1a;
+  border-radius:10px;
+  padding:36px;
+  font-family:'Rajdhani',sans-serif;
+}
+#pdfArea h2{
+  font-family:'Rajdhani',sans-serif;
+  font-weight:700;
+  font-size:1.5rem;
+  text-align:center;
+  margin-bottom:2px;
+  color:#111;
+}
+#pdfArea .pdf-sub{
+  text-align:center;
+  color:#555;
+  font-size:0.9rem;
+  margin-bottom:18px;
+}
+#pdfArea table{
+  width:100%;
+  border-collapse:collapse;
+  margin-bottom:14px;
+  font-size:0.88rem;
+}
+#pdfArea th{
+  background:#1a1a2e;
+  color:#fff;
+  text-align:left;
+  padding:8px 10px;
+  font-size:0.8rem;
+  letter-spacing:0.5px;
+}
+#pdfArea td{
+  padding:7px 10px;
+  border-bottom:1px solid #e2e2e2;
+  color:#222;
+}
+#pdfArea td.amt{text-align:right;font-family:'Share Tech Mono',monospace;}
+#pdfArea tr.subtotal td{font-weight:700;background:#f4f4f8;}
+#pdfArea tr.grandtotal td{font-weight:700;background:#1a1a2e;color:#fff;font-size:0.95rem;}
+#pdfArea .pdf-two-col{display:flex;gap:24px;}
+#pdfArea .pdf-two-col > div{flex:1;}
+#pdfArea .pdf-footer{
+  margin-top:20px;
+  padding-top:12px;
+  border-top:1px solid #ddd;
+  font-size:0.75rem;
+  color:#777;
+  text-align:center;
+}
+
+/* Hindi Guide */
+.guide-toggle{
+  cursor:pointer;
+  user-select:none;
+}
+.guide-content{
+  display:none;
+  margin-top:14px;
+  padding-top:14px;
+  border-top:1px solid var(--border-soft);
+  color:var(--text-secondary);
+  font-size:0.95rem;
+}
+.guide-content.open{display:block;}
+.guide-content h3{
+  font-family:'Orbitron',sans-serif;
+  font-size:0.95rem;
+  color:var(--green);
+  margin:14px 0 6px;
+}
+.guide-content ul{margin-left:20px;margin-bottom:8px;}
+.guide-content li{margin-bottom:5px;}
+.chevron{transition:transform .2s;display:inline-block;}
+.chevron.open{transform:rotate(180deg);}
+
+footer{
+  text-align:center;
+  padding:24px 10px 10px;
+  color:var(--text-dim);
+  font-size:0.8rem;
+  font-family:'Share Tech Mono',monospace;
+}
+
+@media print{
+  body *{visibility:hidden;}
+}
+
+/* Toast */
+#toast{
+  position:fixed;
+  bottom:24px;left:50%;
+  transform:translateX(-50%) translateY(20px);
+  background:var(--bg-card);
+  border:1px solid var(--cyan);
+  color:var(--text-primary);
+  padding:12px 22px;
+  border-radius:9px;
+  font-family:'Share Tech Mono',monospace;
+  font-size:0.85rem;
+  opacity:0;
+  pointer-events:none;
+  transition:opacity .3s, transform .3s;
+  box-shadow:0 0 30px rgba(0,246,255,0.3);
+  z-index:999;
+  max-width:90vw;
+  text-align:center;
+}
+#toast.show{opacity:1;transform:translateX(-50%) translateY(0);}
+</style>
+</head>
+<body>
+
+<div class="wrap">
+
+  <header>
+    <div class="logo-tag">IncomeAIHub // Finance Tools</div>
+    <h1>⚖ Balance Sheet Generator</h1>
+    <p>Create a professional, auto-balanced Balance Sheet for your business in seconds. Enter assets &amp; liabilities, get instant totals, and download as PDF.</p>
+  </header>
+
+  <!-- Ad Slot Top -->
+  <div class="ad-slot">Advertisement</div>
+  <ins class="adsbygoogle" style="display:block" data-ad-client="ca-pub-XXXXXXXXXXXXXXXX" data-ad-slot="0000000000" data-ad-format="auto" data-full-width-responsive="true"></ins>
+
+  <!-- Business Info -->
+  <div class="card">
+    <div class="section-title"><span class="dot"></span> Business Details</div>
+    <div class="meta-grid">
+      <div class="field">
+        <label for="bizName">Business / Company Name</label>
+        <input type="text" id="bizName" placeholder="e.g. Sharma Traders Pvt. Ltd." value="Your Business Name">
+      </div>
+      <div class="field">
+        <label for="asOnDate">Balance Sheet As On</label>
+        <input type="date" id="asOnDate">
+      </div>
+    </div>
+  </div>
+
+  <!-- Assets & Liabilities Entry -->
+  <div class="card">
+    <div class="two-col">
+
+      <!-- ASSETS -->
+      <div>
+        <div class="section-title"><span class="dot"></span> Assets</div>
+
+        <div class="subsection">
+          <div class="subsection-label">Current Assets</div>
+          <div id="currentAssetsList"></div>
+          <button class="add-btn" onclick="addRow('currentAssetsList','currentAssets')">+ Add Current Asset</button>
+        </div>
+
+        <div class="subsection">
+          <div class="subsection-label">Fixed / Non-Current Assets</div>
+          <div id="fixedAssetsList"></div>
+          <button class="add-btn" onclick="addRow('fixedAssetsList','fixedAssets')">+ Add Fixed Asset</button>
+        </div>
+
+        <div class="subtotal-row">
+          <span>TOTAL ASSETS</span>
+          <span id="totalAssetsDisplay">₹0</span>
+        </div>
+      </div>
+
+      <!-- LIABILITIES -->
+      <div>
+        <div class="section-title purple"><span class="dot"></span> Liabilities &amp; Equity</div>
+
+        <div class="subsection">
+          <div class="subsection-label">Current Liabilities</div>
+          <div id="currentLiabList"></div>
+          <button class="add-btn purple" onclick="addRow('currentLiabList','currentLiab')">+ Add Current Liability</button>
+        </div>
+
+        <div class="subsection">
+          <div class="subsection-label">Long-Term Liabilities</div>
+          <div id="longLiabList"></div>
+          <button class="add-btn purple" onclick="addRow('longLiabList','longLiab')">+ Add Long-Term Liability</button>
+        </div>
+
+        <div class="subsection">
+          <div class="subsection-label">Owner's Equity / Capital</div>
+          <div id="equityList"></div>
+          <button class="add-btn purple" onclick="addRow('equityList','equity')">+ Add Equity / Capital Item</button>
+        </div>
+
+        <div class="subtotal-row">
+          <span>TOTAL LIABILITIES + EQUITY</span>
+          <span id="totalLiabEqDisplay">₹0</span>
+        </div>
+      </div>
+
+    </div>
+  </div>
+
+  <!-- Balance Check -->
+  <div class="balance-check" id="balanceCheckBox">
+    <div class="status-text balanced" id="balanceStatus">✓ BALANCE SHEET IS BALANCED</div>
+    <div class="diff-text" id="balanceDiff">Difference: ₹0</div>
+  </div>
+
+  <!-- Totals Summary -->
+  <div class="card">
+    <div class="section-title green"><span class="dot"></span> Summary</div>
+    <div class="totals-grid">
+      <div class="total-box">
+        <div class="label">Total Assets</div>
+        <div class="value" id="sumAssets">₹0</div>
+      </div>
+      <div class="total-box liab">
+        <div class="label">Total Liabilities</div>
+        <div class="value" id="sumLiab">₹0</div>
+      </div>
+      <div class="total-box eq">
+        <div class="label">Total Equity / Capital</div>
+        <div class="value" id="sumEquity">₹0</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Action Buttons -->
+  <div class="action-bar">
+    <button class="btn btn-primary" onclick="generatePreview()">📄 Generate Preview</button>
+    <button class="btn btn-secondary" onclick="downloadPDF()">⬇ Download PDF</button>
+    <button class="btn btn-ghost" onclick="resetForm()">↺ Reset All</button>
+  </div>
+
+  <!-- Ad Slot Middle -->
+  <div class="ad-slot">Advertisement</div>
+
+  <!-- PDF Preview -->
+  <div class="card" id="previewCard" style="display:none;">
+    <div class="section-title"><span class="dot"></span> Balance Sheet Preview</div>
+    <div id="pdfArea">
+      <!-- populated by JS -->
+    </div>
+  </div>
+
+  <!-- Hindi Usage Guide -->
+  <div class="card">
+    <div class="section-title guide-toggle" onclick="toggleGuide()">
+      <span class="dot"></span> उपयोग गाइड (Hindi Usage Guide)
+      <span class="chevron" id="chevronIcon" style="margin-left:auto;">▾</span>
+    </div>
+    <div class="guide-content" id="guideContent">
+      <p>यह <strong>Balance Sheet Generator</strong> टूल आपके बिज़नेस के लिए तुरंत प्रोफेशनल बैलेंस शीट बनाने में मदद करता है।</p>
+
+      <h3>इस्तेमाल कैसे करें:</h3>
+      <ul>
+        <li><strong>बिज़नेस का नाम</strong> और <strong>तारीख (As On Date)</strong> भरें।</li>
+        <li><strong>Assets (संपत्ति)</strong> सेक्शन में अपनी Current Assets (जैसे Cash, Bank Balance, Stock, Debtors) और Fixed Assets (जैसे Machinery, Building, Furniture) जोड़ें।</li>
+        <li><strong>Liabilities (दायित्व)</strong> सेक्शन में Current Liabilities (जैसे Creditors, Short-term Loans), Long-Term Liabilities (जैसे Bank Loan) और Equity/Capital जोड़ें।</li>
+        <li>नई एंट्री जोड़ने के लिए <strong>"+ Add"</strong> बटन दबाएं, हटाने के लिए लाल <strong>❌</strong> बटन दबाएं।</li>
+        <li>सभी टोटल अपने आप कैलकुलेट हो जाएंगे।</li>
+      </ul>
+
+      <h3>Balance Check क्या है?</h3>
+      <p>एक सही बैलेंस शीट में हमेशा <strong>Total Assets = Total Liabilities + Equity</strong> होना चाहिए। अगर दोनों बराबर नहीं हैं, तो टूल आपको हरे (✓ Balanced) या लाल (✗ Unbalanced) रंग में अंतर दिखाएगा — इससे आप गलती तुरंत पकड़ सकते हैं।</p>
+
+      <h3>PDF कैसे डाउनलोड करें:</h3>
+      <ul>
+        <li>"Generate Preview" बटन दबाकर पहले अपनी बैलेंस शीट का प्रीव्यू देखें।</li>
+        <li>फिर "Download PDF" बटन दबाएं — आपकी बैलेंस शीट एक प्रोफेशनल PDF फाइल के रूप में डाउनलोड हो जाएगी, जिसे आप क्लाइंट, बैंक या CA को भेज सकते हैं।</li>
+      </ul>
+
+      <h3>ध्यान दें:</h3>
+      <p>यह टूल सामान्य उपयोग और जानकारी के लिए है। आधिकारिक फाइलिंग या ऑडिट के लिए हमेशा अपने Chartered Accountant (CA) से सलाह लें।</p>
+    </div>
+  </div>
+
+  <!-- Ad Slot Bottom -->
+  <div class="ad-slot">Advertisement</div>
+
+  <footer>
+    IncomeAIHub © 2026 — Balance Sheet Generator | Free Online Tool for Indian Businesses<br>
+    Disclaimer: For informational purposes only. Not a substitute for professional accounting advice.
+  </footer>
+
+</div>
+
+<div id="toast"></div>
+
+<script>
+/* ===================== STATE ===================== */
+let rowCounter = 0;
+
+const sections = {
+  currentAssets: { containerId:'currentAssetsList', defaults:['Cash in Hand','Bank Balance','Sundry Debtors','Closing Stock'] },
+  fixedAssets:   { containerId:'fixedAssetsList', defaults:['Machinery & Equipment','Furniture & Fixtures'] },
+  currentLiab:   { containerId:'currentLiabList', defaults:['Sundry Creditors','Outstanding Expenses'] },
+  longLiab:      { containerId:'longLiabList', defaults:['Bank Loan (Long Term)'] },
+  equity:        { containerId:'equityList', defaults:["Owner's Capital",'Retained Earnings'] }
+};
+
+/* ===================== INIT ===================== */
+window.onload = function(){
+  document.getElementById('asOnDate').valueAsDate = new Date();
+
+  // Seed each section with default rows
+  Object.keys(sections).forEach(key => {
+    sections[key].defaults.forEach(label => {
+      addRow(sections[key].containerId, key, label, '');
+    });
+  });
+
+  recalcAll();
+};
+
+/* ===================== ROW MANAGEMENT ===================== */
+function addRow(containerId, groupKey, presetLabel, presetValue){
+  rowCounter++;
+  const id = 'row_' + rowCounter;
+  const container = document.getElementById(containerId);
+
+  const row = document.createElement('div');
+  row.className = 'row-item';
+  row.id = id;
+  row.setAttribute('data-group', groupKey);
+
+  row.innerHTML = `
+    <input type="text" placeholder="Item name" value="${presetLabel ? escapeHtml(presetLabel) : ''}" oninput="recalcAll()">
+    <input type="number" placeholder="0" value="${presetValue !== undefined ? presetValue : ''}" min="0" step="0.01" oninput="recalcAll()">
+    <button class="remove-btn" onclick="removeRow('${id}')" title="Remove">✕</button>
+  `;
+
+  container.appendChild(row);
+  recalcAll();
+}
+
+function removeRow(id){
+  const el = document.getElementById(id);
+  if(el){
+    el.remove();
+    recalcAll();
+  }
+}
+
+function escapeHtml(str){
+  const div = document.createElement('div');
+  div.textContent = str;
+  return div.innerHTML;
+}
+
+/* ===================== CALCULATIONS ===================== */
+function getGroupTotal(containerId){
+  let total = 0;
+  const items = [];
+  const container = document.getElementById(containerId);
+  container.querySelectorAll('.row-item').forEach(row => {
+    const inputs = row.querySelectorAll('input');
+    const label = inputs[0].value.trim() || 'Unnamed Item';
+    const value = parseFloat(inputs[1].value) || 0;
+    total += value;
+    items.push({label, value});
+  });
+  return {total, items};
+}
+
+function formatINR(num){
+  const isNeg = num < 0;
+  num = Math.abs(num);
+  let formatted = num.toLocaleString('en-IN', {minimumFractionDigits:2, maximumFractionDigits:2});
+  return (isNeg ? '-₹' : '₹') + formatted;
+}
+
+function recalcAll(){
+  const ca = getGroupTotal('currentAssetsList');
+  const fa = getGroupTotal('fixedAssetsList');
+  const cl = getGroupTotal('currentLiabList');
+  const ll = getGroupTotal('longLiabList');
+  const eq = getGroupTotal('equityList');
+
+  const totalAssets = ca.total + fa.total;
+  const totalLiabilities = cl.total + ll.total;
+  const totalEquity = eq.total;
+  const totalLiabEquity = totalLiabilities + totalEquity;
+
+  document.getElementById('totalAssetsDisplay').textContent = formatINR(totalAssets);
+  document.getElementById('totalLiabEqDisplay').textContent = formatINR(totalLiabEquity);
+
+  document.getElementById('sumAssets').textContent = formatINR(totalAssets);
+  document.getElementById('sumLiab').textContent = formatINR(totalLiabilities);
+  document.getElementById('sumEquity').textContent = formatINR(totalEquity);
+
+  const diff = totalAssets - totalLiabEquity;
+  const statusEl = document.getElementById('balanceStatus');
+  const diffEl = document.getElementById('balanceDiff');
+  const boxEl = document.getElementById('balanceCheckBox');
+
+  if(Math.abs(diff) < 0.01){
+    statusEl.textContent = '✓ BALANCE SHEET IS BALANCED';
+    statusEl.className = 'status-text balanced';
+    diffEl.textContent = 'Difference: ₹0.00';
+    boxEl.style.borderColor = 'rgba(57,255,140,0.4)';
+  } else {
+    statusEl.textContent = '✗ BALANCE SHEET IS NOT BALANCED';
+    statusEl.className = 'status-text unbalanced';
+    diffEl.textContent = `Difference: ${formatINR(diff)} ${diff > 0 ? '(Assets exceed Liabilities+Equity)' : '(Liabilities+Equity exceed Assets)'}`;
+    boxEl.style.borderColor = 'rgba(255,77,109,0.4)';
+  }
+
+  return {ca, fa, cl, ll, eq, totalAssets, totalLiabilities, totalEquity, totalLiabEquity, diff};
+}
+
+/* ===================== PREVIEW / PDF ===================== */
+function buildTableRows(items, total){
+  let rows = items.map(it => `<tr><td>${escapeHtml(it.label)}</td><td class="amt">${formatINR(it.value)}</td></tr>`).join('');
+  rows += `<tr class="subtotal"><td>Subtotal</td><td class="amt">${formatINR(total)}</td></tr>`;
+  return rows;
+}
+
+function generatePreview(){
+  const data = recalcAll();
+  const bizName = document.getElementById('bizName').value || 'Your Business Name';
+  const asOnDate = document.getElementById('asOnDate').value;
+  const dateFormatted = asOnDate ? new Date(asOnDate).toLocaleDateString('en-IN', {day:'2-digit', month:'long', year:'numeric'}) : '—';
+
+  const html = `
+    <h2>${escapeHtml(bizName)}</h2>
+    <div class="pdf-sub">Balance Sheet as on ${dateFormatted}</div>
+
+    <div class="pdf-two-col">
+      <div>
+        <table>
+          <thead><tr><th colspan="2">ASSETS</th></tr></thead>
+          <tbody>
+            <tr><td colspan="2" style="font-weight:700;background:#eef1fb;">Current Assets</td></tr>
+            ${buildTableRows(data.ca.items, data.ca.total)}
+            <tr><td colspan="2" style="font-weight:700;background:#eef1fb;">Fixed Assets</td></tr>
+            ${buildTableRows(data.fa.items, data.fa.total)}
+            <tr class="grandtotal"><td>TOTAL ASSETS</td><td class="amt">${formatINR(data.totalAssets)}</td></tr>
+          </tbody>
+        </table>
+      </div>
+      <div>
+        <table>
+          <thead><tr><th colspan="2">LIABILITIES &amp; EQUITY</th></tr></thead>
+          <tbody>
+            <tr><td colspan="2" style="font-weight:700;background:#eef1fb;">Current Liabilities</td></tr>
+            ${buildTableRows(data.cl.items, data.cl.total)}
+            <tr><td colspan="2" style="font-weight:700;background:#eef1fb;">Long-Term Liabilities</td></tr>
+            ${buildTableRows(data.ll.items, data.ll.total)}
+            <tr><td colspan="2" style="font-weight:700;background:#eef1fb;">Owner's Equity / Capital</td></tr>
+            ${buildTableRows(data.eq.items, data.eq.total)}
+            <tr class="grandtotal"><td>TOTAL LIABILITIES + EQUITY</td><td class="amt">${formatINR(data.totalLiabEquity)}</td></tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+
+    <div class="pdf-footer">
+      Balance Check: ${Math.abs(data.diff) < 0.01 ? '✓ Balanced' : '✗ Not Balanced — Difference ' + formatINR(data.diff)}<br>
+      Generated via IncomeAIHub Balance Sheet Generator | For informational purposes only — consult your CA for official filings.
+    </div>
+  `;
+
+  document.getElementById('pdfArea').innerHTML = html;
+  document.getElementById('previewCard').style.display = 'block';
+  document.getElementById('previewCard').scrollIntoView({behavior:'smooth', block:'start'});
+  showToast('Preview generated ✓');
+}
+
+function downloadPDF(){
+  generatePreview();
+
+  showToast('Generating PDF...');
+
+  setTimeout(() => {
+    const element = document.getElementById('pdfArea');
+    const bizName = (document.getElementById('bizName').value || 'Balance_Sheet').replace(/[^a-z0-9]+/gi, '_');
+
+    html2canvas(element, {scale:2, backgroundColor:'#ffffff'}).then(canvas => {
+      const imgData = canvas.toDataURL('image/png');
+      const { jsPDF } = window.jspdf;
+      const pdf = new jsPDF('p', 'mm', 'a4');
+
+      const pageWidth = pdf.internal.pageSize.getWidth();
+      const pageHeight = pdf.internal.pageSize.getHeight();
+      const imgWidth = pageWidth - 20;
+      const imgHeight = (canvas.height * imgWidth) / canvas.width;
+
+      let heightLeft = imgHeight;
+      let position = 10;
+
+      pdf.addImage(imgData, 'PNG', 10, position, imgWidth, imgHeight);
+      heightLeft -= (pageHeight - 20);
+
+      while(heightLeft > 0){
+        position = heightLeft - imgHeight + 10;
+        pdf.addPage();
+        pdf.addImage(imgData, 'PNG', 10, position, imgWidth, imgHeight);
+        heightLeft -= (pageHeight - 20);
+      }
+
+      pdf.save(`${bizName}_Balance_Sheet.pdf`);
+      showToast('PDF downloaded successfully ✓');
+    }).catch(err => {
+      showToast('PDF generation failed. Try again.');
+      console.error(err);
+    });
+  }, 200);
+}
+
+/* ===================== RESET ===================== */
+function resetForm(){
+  if(!confirm('Reset all entries? This cannot be undone.')) return;
+
+  Object.keys(sections).forEach(key => {
+    document.getElementById(sections[key].containerId).innerHTML = '';
+  });
+
+  document.getElementById('bizName').value = 'Your Business Name';
+  document.getElementById('asOnDate').valueAsDate = new Date();
+  document.getElementById('previewCard').style.display = 'none';
+
+  Object.keys(sections).forEach(key => {
+    sections[key].defaults.forEach(label => {
+      addRow(sections[key].containerId, key, label, '');
+    });
+  });
+
+  recalcAll();
+  showToast('Form reset ✓');
+}
+
+/* ===================== GUIDE TOGGLE ===================== */
+function toggleGuide(){
+  const content = document.getElementById('guideContent');
+  const chevron = document.getElementById('chevronIcon');
+  content.classList.toggle('open');
+  chevron.classList.toggle('open');
+}
+
+/* ===================== TOAST ===================== */
+let toastTimeout;
+function showToast(msg){
+  const toast = document.getElementById('toast');
+  toast.textContent = msg;
+  toast.classList.add('show');
+  clearTimeout(toastTimeout);
+  toastTimeout = setTimeout(() => toast.classList.remove('show'), 2600);
+}
+</script>
+
+</body>
+</html>
